@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { addUser, getUserDetails } from "../controllers/userController.js";
+import { getUserDetails } from "../controllers/userController.js";
+import isAuthenticated from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-router.post("/", addUser);
-router.get("/:id", getUserDetails);
+router.get("/:id", isAuthenticated, getUserDetails);
 
 export default router;
