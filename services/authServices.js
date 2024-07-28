@@ -10,7 +10,7 @@ export const registerUser = async (userData) => {
     return user;
 }
 
-export const loginUser = async (email, password) => {
+export const loginUser = async (email,password) => {
     const user = await User.findOne({ email });
     if (!user) {
         throw new Error("Incorrect email");

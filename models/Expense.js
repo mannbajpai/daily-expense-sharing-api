@@ -11,14 +11,14 @@ const ExpenseSchema = new Schema({
     required: true
   },
   paidBy: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
   participants: [
     {
       user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
       },
       amount: Number, // for exact split

@@ -1,9 +1,9 @@
 import express from "express";
 import session from "express-session";
-
+import MongoStore from "connect-mongo"
 import { connectDB } from "./config/db.js";
 import "./config/passport.js";
-
+import passport from "passport";
 import { configDotenv } from "dotenv";
 configDotenv();
 
@@ -22,7 +22,7 @@ app.use(
         resave: false,
         saveUninitialized: false,
         store: MongoStore.create({
-            mongoUrl: process.env.MONGODB_URI,
+            mongoUrl: process.env.MONGO_URI,
         }),
     })
 );

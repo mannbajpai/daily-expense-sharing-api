@@ -1,4 +1,4 @@
-import { loginUser,registerUser} from "../services/authServices.js";
+import { loginUser, registerUser } from "../services/authServices.js";
 
 export const register = async (req, res) => {
     try {
@@ -25,6 +25,8 @@ export const login = async (req, res, next) => {
 };
 
 export const logout = (req, res) => {
-    req.logout();
+    req.logout((err) => {
+        if (err) { return next(err); }
+    });
     res.status(200).json({ message: "Logged out successfully" });
 };

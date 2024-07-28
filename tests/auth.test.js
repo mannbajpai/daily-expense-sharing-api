@@ -6,7 +6,6 @@ import User from "../models/User.js";
 import Expense from "../models/Expense.js";
 
 describe("Expense Controller", () => {
-  let token;
   let user;
 
   beforeAll(async () => {
@@ -24,7 +23,6 @@ describe("Expense Controller", () => {
       .post("/api/auth/login")
       .send({ email: "test@example.com", password: "password123" });
 
-    token = loginResponse.body.token; // Assuming your login endpoint returns a token
   });
 
   afterAll(async () => {

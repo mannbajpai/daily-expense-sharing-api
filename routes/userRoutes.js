@@ -4,6 +4,6 @@ import isAuthenticated from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-router.get("/:id", isAuthenticated, getUserDetails);
+router.get("/me", isAuthenticated, getUserDetails);
 
 export default router;

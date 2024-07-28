@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const UserSchema = new Schema({
     name: {
@@ -27,15 +27,18 @@ const UserSchema = new Schema({
     },
 })
 
-userSchema.pre('save', async (next) => {
-    if (!this.isModified("password")) {
-        return next();
+UserSchema.pre('save', async function save(next) {
+    if (!this.isModified('password')) return next();
+    try {
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(this.password, salt);
+      return next();
+    } catch (err) {
+      return next(err);
     }
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
-})
+  });
 
-userSchema.methods.isValidPassword = async(password) => {
+UserSchema.methods.isValidPassword = async function check(password) {
     return await bcrypt.compare(password, this.password);
 }
 

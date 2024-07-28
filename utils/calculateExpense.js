@@ -1,4 +1,4 @@
-export default calculateExpense = (amount, participants, splitMethod) => {
+const calculateExpense = (amount, participants, splitMethod) => {
     let splitData = [];
     switch (splitMethod) {
       case "equal":
@@ -26,3 +26,5 @@ export default calculateExpense = (amount, participants, splitMethod) => {
     }
     return splitData;
   };
+
+  export default calculateExpense;
