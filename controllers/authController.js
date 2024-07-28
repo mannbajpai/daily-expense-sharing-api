@@ -1,37 +1,30 @@
-import passport from "passport";
+import { loginUser,registerUser} from "../services/authServices.js";
 
+export const register = async (req, res) => {
+    try {
+        const userData = req.body;
+        const user = await registerUser(userData);
+        res.status(201).json({ message: "User registered successfully", user });
+    } catch (error) {
+        res.status(400).json({ message: "Error registering user", error: error.message });
+    }
+};
 
-export const login = (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-        if (err) {
-            return res.status(500).json({ message: "An Error occurred" })
-        }
-        if (!user) {
-            return res.status(401).json({ message: info.message });
-        }
-        req.logIn(user, (err) => {
-            if (err) {
-                res.status(500).json({ message: "An error occurred" });
-            }
-            return res.json({ message: "Login successful", user });
+export const login = async (req, res, next) => {
+
+    await loginUser(req.body.email, req.body.password)
+        .then((user) => {
+            req.login(user, (err) => {
+                if (err) return next(err);
+                return res.status(200).json({ message: "Login successful", user });
+            });
+        })
+        .catch((error) => {
+            res.status(400).json({ message: "Error logging in", error: error.message });
         });
-    })
-        (req, res, next);
-}
+};
 
 export const logout = (req, res) => {
-    req.logout((err) => {
-        if (err) {
-            return res.status(500).json({ message: "An error occurred", error: err });
-        }
-        res.json({ message: "Logout successful" });
-    });
+    req.logout();
+    res.status(200).json({ message: "Logged out successfully" });
 };
-
-export const isAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.status(401).json({ message: "Unauthorized" });
-};
-

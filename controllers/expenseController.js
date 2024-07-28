@@ -1,77 +1,46 @@
-import Expense from "../models/Expense.js";
-import User from "../models/User.js";
-import calculateExpense from "../utils/calculateExpense.js";
+import { getUserExpenses, getOverallExpenses, downloadBalanceSheet, createExpense } from "../services/expenseService.js"
 
-export default addExpense = async (req, res) => {
+export const addExpense = async (req, res) => {
     try {
-        const { title, amount, participants, splitMethod } = req.body;
-
-        // Validate input data
-        if (!title || !amount || !participants || !splitMethod) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-
-        const expense = new Expense({
-            title,
-            amount,
+        const expenseData = {
+            title: req.body.title,
+            amount: req.body.amount,
             paidBy: req.user._id,
-            participants,
-            splitMethod,
-        });
+            participants: req.body.participants,
+            splitMethod: req.body.splitMethod,
+        };
 
-        // Calculate expense distribution
-        const splitData = calculateExpense(amount, participants, splitMethod);
-        expense.participants = splitData;
+        const expense = await createExpense(expenseData);
 
-        await expense.save();
         res.status(201).json({ message: "Expense added successfully", expense });
     } catch (error) {
-        res.status(400).json({ message: "Error adding expense", error });
+        res.status(400).json({ message: "Error adding expense", error: error.message });
     }
-}
+};
 
-export const getUserExpenses = async (req, res) => {
+export const getExpenses = async (req, res) => {
     try {
-        const expenses = await Expense.find({ participants: { $elemMatch: { user: req.user._id } } });
+        const expenses = await getUserExpenses(req.user._id);
         res.json(expenses);
     } catch (error) {
-        res.status(400).json({ message: "Error retrieving user expenses", error });
+        res.status(400).json({ message: "Error retrieving user expenses", error: error.message });
     }
-}
+};
 
-export const getOverallExpenses = async (req, res) => {
+export const getAllExpenses = async (req, res) => {
     try {
-        const expenses = await Expense.find().populate("paidBy participants.user");
+        const expenses = await getOverallExpenses();
         res.json(expenses);
     } catch (error) {
-        res.status(400).json({ message: "Error retrieving overall expenses", error });
+        res.status(400).json({ message: "Error retrieving overall expenses", error: error.message });
     }
-}
+};
 
-export const downloadBalanceSheet = async (req, res) => {
+export const downloadBalance = async (req, res) => {
     try {
-        // Fetch user's expenses
-        const expenses = await Expense.find({ participants: { $elemMatch: { user: req.user._id } } });
-
-        // Prepare data for balance sheet
-        const balanceSheet = expenses.map((expense) => {
-            return {
-                title: expense.title,
-                amount: expense.amount,
-                paidBy: expense.paidBy.name,
-                splitMethod: expense.splitMethod,
-                participants: expense.participants.map((participant) => ({
-                    name: participant.user.name,
-                    amount: participant.amount,
-                    percentage: participant.percentage,
-                })),
-            };
-        });
-
-        // Generate a CSV file or PDF (this example uses a simple JSON response)
-        res.json(balanceSheet);
+        const balanceSheet = await downloadBalanceSheet(req.user._id);
+        res.status(200).json({ balanceSheet });
     } catch (error) {
-        res.status(400).json({ message: "Error generating balance sheet", error });
+        res.status(400).json({ message: "Error downloading balance sheet", error: error.message });
     }
-}
-
+};
